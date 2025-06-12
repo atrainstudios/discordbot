@@ -4,6 +4,8 @@ from discord.ext import commands
 from dotenv import load_dotenv
 import os
 import numpy as np
+from discord.ext.commands import CommandOnCooldown
+from discord.ext.commands import cooldown, BucketType
 
 intents = discord.Intents.default()
 intents.message_content = True  
@@ -54,6 +56,7 @@ def tune(tire, suspension, drivetrain, exhaust, start_rank, end_rank, fake_rank=
     
     
 @bot.command()
+@cooldown(1, 1, BucketType.user)
 async def tuner(ctx, *args):
     if len(args) < 6:
         await ctx.send(
@@ -121,30 +124,34 @@ async def tuner(ctx, *args):
 
 
 @bot.command()
+@cooldown(1, 5, BucketType.user)
 async def sus(ctx):
     await ctx.message.add_reaction("🈷️")
+    await ctx.send(f'ngl {ctx.message.author.mention} is kinda 🈷️')
+    
     
 @bot.command()
+@cooldown(1, 3, BucketType.user)
 async def vroomshield(ctx):
-    with open("vroomshield.png", "rb") as f:
-        picture = discord.File(f)
-        await ctx.send(file=picture)
+    await ctx.send('https://cdn.discordapp.com/attachments/849710808087003179/1381665052746190988/vroomshield.png?ex=6848575a&is=684705da&hm=ab3a6030915829e6ec1e6de7480da1c0c27b77fa8f6e6919dc65d521c96d5e23&')
         
 @bot.command()
+@cooldown(1, 3, BucketType.user)
 async def potatoman(ctx):
-    with open("SPOILER_potatoman.png", "rb") as f:
-        picture = discord.File(f)
-        await ctx.send(file=picture)
+    await ctx.send('||https://cdn.discordapp.com/attachments/849710808087003179/1381781601515606157/SPOILER_potatoman.png?ex=6848c3e6&is=68477266&hm=5bc90ce52d6240d91bfc9ef687e38b634067d6f364d3dc4a93cae87fa80a9a65&||')
 
 @bot.command()
+@cooldown(1, 3, BucketType.user)
 async def youtube(ctx):
     await ctx.send('https://www.youtube.com/@DBTsVrooms')
 
 @bot.command()
+@cooldown(1, 1, BucketType.user)
 async def pixo(ctx):
     await ctx.send('I am totally a bot.')
 
 @bot.command()
+@cooldown(1, 3, BucketType.user)
 async def vroomer(ctx):
     await ctx.send("To be part of the Vroomers, there's a few requirements: \n * Be a chill member (no drama, no hyper agressive KDer) \n * Don't be a cheater (no MP cheating shenanigans) \n \nAnd voilá! You're part of the Vroomy fam, though that doesn't give you the Flag Bearer role here. For that, you do need to add the `VROOMS` to your IGN, preferrably without spaces, so that the full name shows in races, like: `'VROOMS'-John`, because if you add an space, in the leaderboard it shows as `'Vrooms' J.`")
         
@@ -202,6 +209,14 @@ async def on_member_join(member):
             await mod_channel.send(
                 f"{role.mention} 🚨 Suspicious user joined: {member.mention} (username: `{member.name}`, id: `{member.name}` )"
             )
+
+
+
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, CommandOnCooldown):
+        await ctx.send(f"Whoa slow down! Try again in {int(error.retry_after)} seconds.")
+
 
 
 load_dotenv()
